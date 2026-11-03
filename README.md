@@ -8,10 +8,9 @@ Docente: Elfar Didier Morantes Sánchez
 
 | Integrante | Rol |
 | --- | --- |
-| [Integrante 1] | [Rol] |
-| [Integrante 2] | [Rol] |
-| [Integrante 3] | [Rol] |
-| [Integrante 4] | [Rol] |
+| Juan Sebastian Gomez Tovar | Desarrollador |
+| Sergio Andres Gutierrez Marin| Desarrollador |
+
 
 ## Problema
 
@@ -50,14 +49,12 @@ Despliegue: Render (dos Web Services con Docker + PostgreSQL gestionado). Ver [d
 │   ├── revision/      Aprobación, estados y estadísticas
 │   ├── reportes/      Reportes ejecutivos con IA
 │   └── integraciones/ Cliente HTTP del microservicio ms_ia
-├── ms_ia/             Microservicio Node.js (Entrega 3)
+├── ms_ia/             Microservicio Node.js 
 ├── docs/
-│   ├── SRS_ProponeU_Entrega1.docx
+│   ├── SRS_ProponeU_Entrega1.docx / .pdf
 │   ├── backlog.md
-│   ├── trazabilidad.md
 │   ├── guion_video1.md
-│   └── uml/           Casos de uso, componentes y despliegue (SVG y PNG)
-├── .github/           Plantillas de issues y pull requests
+│   └── uml/           Casos de uso, componentes y despliegue
 └── .env.example       Variables de entorno necesarias
 ```
 
@@ -77,21 +74,7 @@ En la Entrega 3 todo el sistema se levantará con `docker compose up`.
 
 ## Documentación
 
-- [SRS — Entrega 1](docs/SRS_ProponeU_Entrega1.docx)
+- SRS — Entrega 1: [PDF](docs/SRS_ProponeU_Entrega1.pdf) · [Word](docs/SRS_ProponeU_Entrega1.docx)
 - [Backlog inicial](docs/backlog.md)
-- [Matriz de trazabilidad](docs/trazabilidad.md)
+- Matriz de trazabilidad: sección 12 del SRS
 - Diagramas UML: [casos de uso](docs/uml/casos_de_uso.png) · [componentes](docs/uml/componentes.png) · [despliegue](docs/uml/despliegue.png)
-
-## Flujo de trabajo
-
-Git Flow: `main` (producción) · `develop` (integración) · `feature/HUxx-descripcion` (una rama por historia).
-Commits con Conventional Commits, por ejemplo `feat(propuestas): crear propuesta (HU04)`.
-
-## Cronograma
-
-| Fecha | Entrega | Contenido |
-| --- | --- | --- |
-| 05/11/2026 | Entrega 1 | SRS, UML inicial, backlog, repositorio, trazabilidad, video |
-| 12/11/2026 | Entrega 2 | CRUD, login, roles, Dockerfile, despliegue inicial, diagrama de secuencia |
-| 19/11/2026 | Entrega 3 | Microservicio Node.js, Swagger, IA, Docker Compose |
-| 26/11/2026 | ExpoUninpahu | Sustentación del producto final |

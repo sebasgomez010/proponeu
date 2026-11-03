@@ -3,7 +3,7 @@
 **Duración objetivo:** 5:30 min. La guía pide máximo 8 min y el cronograma indica 5 min.
 **Reglas de la guía:** todos los integrantes deben aparecer y hablar. Se deben mostrar pantallas reales (SRS, diagramas, repositorio). Debe existir una sección llamada **«Evidencia de Requisitos Implementados»**.
 
-**Qué tener abierto en pantalla:** el SRS en Word, los PNG de `docs/uml/`, el repositorio en GitHub y `docs/trazabilidad.md`.
+**Qué tener abierto en pantalla:** el SRS en Word, los PNG de `docs/uml/`, el repositorio en GitHub y la matriz de trazabilidad (sección 12 del SRS).
 
 | Bloque | Tiempo | Quién | En pantalla |
 | --- | --- | --- | --- |
@@ -11,7 +11,7 @@
 | 2. Problema | 0:30–1:30 | I2 | SRS, sección 2 |
 | 3. Solución | 1:30–2:30 | I3 | SRS, sección 4 + diagrama de casos de uso |
 | 4. Arquitectura | 2:30–4:30 | I4 e I1 | Diagrama de componentes y de despliegue |
-| 5. Evidencia y estado actual | 4:30–5:30 | I2 e I3 | `trazabilidad.md`, backlog y repositorio en GitHub |
+| 5. Evidencia y estado actual | 4:30–5:30 | I2 e I3 | Matriz (sección 12 del SRS), backlog y repositorio en GitHub |
 
 ---
 
@@ -52,11 +52,11 @@
 
 ## 5. Evidencia de Requisitos Implementados y estado actual (1 min) — Integrantes 2 y 3
 
-**Integrante 2 — Evidencia de Requisitos Implementados (30 s)** · *mostrar `docs/trazabilidad.md`*
+**Integrante 2 — Evidencia de Requisitos Implementados (30 s)** · *mostrar la sección 12 del SRS*
 > «En esta entrega la evidencia es la especificación. Tenemos 18 requisitos funcionales y 11 no funcionales en el SRS. Cada requisito está en la matriz de trazabilidad con su caso de uso, su historia de usuario, el componente que lo implementa, el video donde se va a mostrar y la entrega correspondiente. El backlog tiene 17 historias de usuario priorizadas con MoSCoW.»
 
 **Integrante 3 — Estado actual (30 s)** · *mostrar el repositorio en GitHub*
-> «Este es nuestro repositorio. Tiene la carpeta django_app con el proyecto Django y una app por cada módulo del diagrama de componentes, ms_ia para el microservicio, docs con el SRS, los diagramas UML, el backlog y la matriz, y plantillas para issues y pull requests. Trabajamos con Git Flow: main, develop y una rama por historia de usuario. En la Entrega 2 vamos a mostrar el núcleo funcional: login, roles y CRUD. ¡Gracias!»
+> «Este es nuestro repositorio. Tiene la carpeta django_app con el proyecto Django y una app por cada módulo del diagrama de componentes, ms_ia para el microservicio, y docs con el SRS, los diagramas UML y el backlog. Trabajamos con Git Flow: main, develop y una rama por historia de usuario. En la Entrega 2 vamos a mostrar el núcleo funcional: login, roles y CRUD. ¡Gracias!»
 
 ---
 
