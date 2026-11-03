@@ -1,9 +1,0 @@
-<h2>¿Seguro que quieres eliminar "{{ propuesta.titulo }}"?</h2>
-<p>También se borrarán sus votos.</p>
-
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Sí, eliminar</button>
-</form>
-
-<a href="{% url 'propuestas:detalle' propuesta.id %}">Cancelar</a>
