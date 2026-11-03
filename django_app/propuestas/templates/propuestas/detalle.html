@@ -1,0 +1,21 @@
+<h1>{{ propuesta.titulo }}</h1>
+<p>{{ propuesta.descripcion }}</p>
+<p>Creada el: {{ propuesta.fecha_creacion }}</p>
+
+{% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+{% endif %}
+
+<form action="{% url 'propuestas:votar' propuesta.id %}" method="post">
+    {% csrf_token %}
+    {% for opcion in propuesta.opcion_set.all %}
+        <input type="radio" name="opcion" id="opcion{{ forloop.counter }}" value="{{ opcion.id }}">
+        <label for="opcion{{ forloop.counter }}">{{ opcion.texto }}</label><br>
+    {% endfor %}
+    <br>
+    <button type="submit">Votar</button>
+</form>
+
+<a href="{% url 'propuestas:editar' propuesta.id %}">Editar</a> |
+<a href="{% url 'propuestas:eliminar' propuesta.id %}">Eliminar</a> |
+<a href="{% url 'propuestas:index' %}">Volver</a>

@@ -1,0 +1,12 @@
+{% if lista_tareas %}
+    <ul>
+    {% for tarea in lista_tareas %}
+        <li>
+            <a href="{% url 'detail' tarea.id %}">{{ tarea.titulo }}</a>
+            {% if tarea.completada %} ✅ {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No hay tareas pendientes.</p>
+{% endif %}

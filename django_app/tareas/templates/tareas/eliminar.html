@@ -1,0 +1,8 @@
+<h2>¿Seguro que quieres eliminar "{{ tarea.titulo }}"?</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Sí, eliminar</button>
+</form>
+
+<a href="{% url 'index' %}">Cancelar</a>
