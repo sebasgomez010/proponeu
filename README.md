@@ -42,7 +42,14 @@ Despliegue: Render (dos Web Services con Docker + PostgreSQL gestionado). Ver [d
 ## Estructura del repositorio
 
 ```
-├── django_app/        Aplicación Django (proyecto "problema")
+├── django_app/        Proyecto Django "proponeu"
+│   ├── proponeu/      Configuración (settings, urls)
+│   ├── usuarios/      Registro, login, perfiles y roles
+│   ├── propuestas/    CRUD de propuestas y categorías
+│   ├── participacion/ Votos y comentarios
+│   ├── revision/      Aprobación, estados y estadísticas
+│   ├── reportes/      Reportes ejecutivos con IA
+│   └── integraciones/ Cliente HTTP del microservicio ms_ia
 ├── ms_ia/             Microservicio Node.js (Entrega 3)
 ├── docs/
 │   ├── SRS_ProponeU_Entrega1.docx

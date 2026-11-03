@@ -56,7 +56,7 @@
 > «En esta entrega la evidencia es la especificación. Tenemos 18 requisitos funcionales y 11 no funcionales en el SRS. Cada requisito está en la matriz de trazabilidad con su caso de uso, su historia de usuario, el componente que lo implementa, el video donde se va a mostrar y la entrega correspondiente. El backlog tiene 17 historias de usuario priorizadas con MoSCoW.»
 
 **Integrante 3 — Estado actual (30 s)** · *mostrar el repositorio en GitHub*
-> «Este es nuestro repositorio. Tiene la carpeta django_app con el proyecto Django base, ms_ia para el microservicio, docs con el SRS, los diagramas UML, el backlog y la matriz, y plantillas para issues y pull requests. Trabajamos con Git Flow: main, develop y una rama por historia de usuario. En la Entrega 2 vamos a mostrar el núcleo funcional: login, roles y CRUD. ¡Gracias!»
+> «Este es nuestro repositorio. Tiene la carpeta django_app con el proyecto Django y una app por cada módulo del diagrama de componentes, ms_ia para el microservicio, docs con el SRS, los diagramas UML, el backlog y la matriz, y plantillas para issues y pull requests. Trabajamos con Git Flow: main, develop y una rama por historia de usuario. En la Entrega 2 vamos a mostrar el núcleo funcional: login, roles y CRUD. ¡Gracias!»
 
 ---
 
