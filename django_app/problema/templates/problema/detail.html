@@ -1,0 +1,11 @@
+<h2>{{ tarea.titulo }}</h2>
+<p>{{ tarea.descripcion }}</p>
+<p>Fecha límite: {{ tarea.fecha_limite }}</p>
+{% if not tarea.completada %}
+    <form action="{% url 'completar' tarea.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Marcar como completada</button>
+    </form>
+{% else %}
+    <p>✅ Completada</p>
+{% endif %}
