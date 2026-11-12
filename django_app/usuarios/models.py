@@ -37,7 +37,6 @@ class Usuario(AbstractUser):
     email = models.EmailField('correo electrónico', unique=True)
     rol = models.CharField(max_length=20, choices=Rol.choices, default=Rol.ESTUDIANTE)
     programa = models.CharField('programa académico', max_length=120, blank=True)
-    acepta_tratamiento_datos = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']

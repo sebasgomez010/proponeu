@@ -11,14 +11,10 @@ class RegistroForm(EstiloBootstrapMixin, UserCreationForm):
     rol = forms.ChoiceField(
         choices=[(Usuario.Rol.ESTUDIANTE, 'Estudiante'), (Usuario.Rol.DOCENTE, 'Docente')],
     )
-    acepta_tratamiento_datos = forms.BooleanField(
-        required=True,
-        label='Acepto la política de tratamiento de datos personales (Ley 1581 de 2012)',
-    )
 
     class Meta:
         model = Usuario
-        fields = ['first_name', 'last_name', 'email', 'programa', 'rol', 'acepta_tratamiento_datos']
+        fields = ['first_name', 'last_name', 'email', 'programa', 'rol']
         labels = {'first_name': 'Nombres', 'last_name': 'Apellidos'}
 
     def __init__(self, *args, **kwargs):

@@ -9,7 +9,6 @@ class RegistroTests(TestCase):
         datos = {
             'first_name': 'Ana', 'last_name': 'Pérez', 'email': 'ana@uninpahu.edu.co',
             'programa': 'Ingeniería de Software', 'rol': 'ESTUDIANTE',
-            'acepta_tratamiento_datos': 'on',
             'password1': 'ClaveSegura.2026', 'password2': 'ClaveSegura.2026',
         }
         datos.update(cambios)
@@ -20,7 +19,6 @@ class RegistroTests(TestCase):
         self.assertRedirects(respuesta, reverse('propuestas:lista'))
         usuario = Usuario.objects.get(email='ana@uninpahu.edu.co')
         self.assertEqual(usuario.rol, Usuario.Rol.ESTUDIANTE)
-        self.assertTrue(usuario.acepta_tratamiento_datos)
         self.assertEqual(int(self.client.session['_auth_user_id']), usuario.pk)
 
     def test_no_permite_correo_repetido(self):
@@ -28,12 +26,6 @@ class RegistroTests(TestCase):
         respuesta = self.client.post(reverse('usuarios:registro'), self.datos())
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(Usuario.objects.count(), 1)
-
-    def test_exige_aceptar_tratamiento_de_datos(self):
-        datos = self.datos()
-        datos.pop('acepta_tratamiento_datos')
-        self.client.post(reverse('usuarios:registro'), datos)
-        self.assertFalse(Usuario.objects.exists())
 
     def test_no_permite_registrarse_como_coordinador(self):
         self.client.post(reverse('usuarios:registro'), self.datos(rol='COORDINADOR'))

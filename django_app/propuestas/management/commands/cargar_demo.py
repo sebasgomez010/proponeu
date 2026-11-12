@@ -47,7 +47,7 @@ class Command(BaseCommand):
             usuario, creado = Usuario.objects.get_or_create(
                 email=email,
                 defaults={'first_name': nombre, 'last_name': apellido, 'rol': rol,
-                          'programa': 'Ingeniería de Software', 'acepta_tratamiento_datos': True,
+                          'programa': 'Ingeniería de Software',
                           'is_staff': rol == Usuario.Rol.ADMINISTRADOR,
                           'is_superuser': rol == Usuario.Rol.ADMINISTRADOR},
             )

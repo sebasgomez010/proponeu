@@ -30,7 +30,6 @@ Priorización MoSCoW (Must, Should, Could) y estimación en puntos de historia (
 
 - [ ] El formulario pide nombre, correo, programa, rol y contraseña.
 - [ ] No se permite un correo ya registrado.
-- [ ] Debo aceptar la política de tratamiento de datos.
 
 ### HU02 — Iniciar y cerrar sesión
 

@@ -13,7 +13,7 @@ class UsuarioAdmin(UserAdmin):
     search_fields = ['email', 'first_name', 'last_name']
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Datos personales', {'fields': ('first_name', 'last_name', 'programa', 'acepta_tratamiento_datos')}),
+        ('Datos personales', {'fields': ('first_name', 'last_name', 'programa')}),
         ('Rol y permisos', {'fields': ('rol', 'is_active', 'is_staff', 'is_superuser', 'groups')}),
         ('Fechas', {'fields': ('last_login', 'date_joined')}),
     )
