@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block titulo %}Propuestas{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Propuestas de la comunidad</h1>
+  {% if user.is_authenticated %}
+    <a class="btn btn-primary" href="{% url 'propuestas:crear' %}"><i class="bi bi-plus-lg"></i> Nueva propuesta</a>
+  {% endif %}
+</div>
+
+<form method="get" class="row g-2 mb-4">
+  <div class="col-md-4">{{ filtro.q }}</div>
+  <div class="col-md-3">{{ filtro.categoria }}</div>
+  <div class="col-md-2">{{ filtro.estado }}</div>
+  <div class="col-md-2">{{ filtro.orden }}</div>
+  <div class="col-md-1 d-grid"><button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button></div>
+</form>
+
+<div class="row g-4">
+  {% for p in propuestas %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-propuesta h-100 border-0 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="badge text-bg-light">{{ p.categoria }}</span>
+            <span class="badge text-bg-{{ p.color_estado }}">{{ p.get_estado_display }}</span>
+          </div>
+          <h5 class="card-title"><a class="stretched-link text-decoration-none" href="{{ p.get_absolute_url }}">{{ p.titulo }}</a></h5>
+          <p class="card-text text-muted small flex-grow-1">{{ p.descripcion|truncatewords:25 }}</p>
+          <div class="d-flex justify-content-between small text-muted">
+            <span><i class="bi bi-person"></i> {{ p.autor }}</span>
+            <span><i class="bi bi-hand-thumbs-up"></i> {{ p.total_votos }} · <i class="bi bi-chat"></i> {{ p.total_comentarios }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12"><div class="alert alert-light border">No hay propuestas que coincidan con la búsqueda.</div></div>
+  {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ parametros }}">Anterior</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ parametros }}">Siguiente</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

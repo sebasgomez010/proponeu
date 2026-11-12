@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ propuesta.titulo }}{% endblock %}
+{% block contenido %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge text-bg-light">{{ propuesta.categoria }}</span>
+          <span class="badge text-bg-{{ propuesta.color_estado }} fs-6">{{ propuesta.get_estado_display }}</span>
+        </div>
+        <h1 class="h3">{{ propuesta.titulo }}</h1>
+        <p class="text-muted small">Propuesta por <strong>{{ propuesta.autor }}</strong> ({{ propuesta.autor.get_rol_display }}) · {{ propuesta.creada|date:"d/m/Y" }}</p>
+        <p style="white-space: pre-line">{{ propuesta.descripcion }}</p>
+        {% if propuesta.objetivo %}
+          <h2 class="h6 fw-bold mt-4">Objetivo</h2>
+          <p style="white-space: pre-line">{{ propuesta.objetivo }}</p>
+        {% endif %}
+        <dl class="row small mb-0 mt-4">
+          <dt class="col-sm-4">Público objetivo</dt><dd class="col-sm-8">{{ propuesta.publico_objetivo|default:"—" }}</dd>
+          <dt class="col-sm-4">Modalidad</dt><dd class="col-sm-8">{{ propuesta.get_modalidad_display }}</dd>
+          <dt class="col-sm-4">Fecha tentativa</dt><dd class="col-sm-8">{{ propuesta.fecha_tentativa|date:"d/m/Y"|default:"Por definir" }}</dd>
+        </dl>
+        {% if puede_modificar %}
+          <div class="mt-4">
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'propuestas:editar' propuesta.pk %}"><i class="bi bi-pencil"></i> Editar</a>
+            <a class="btn btn-outline-danger btn-sm" href="{% url 'propuestas:eliminar' propuesta.pk %}"><i class="bi bi-trash"></i> Eliminar</a>
+          </div>
+        {% endif %}
+        {% if user.es_coordinador and propuesta.estado != 'BORRADOR' %}
+          <a class="btn btn-warning btn-sm mt-3" href="{% url 'revision:cambiar_estado' propuesta.pk %}"><i class="bi bi-clipboard-check"></i> Revisar propuesta</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" id="comentarios">
+      <div class="card-body p-4">
+        <h2 class="h5 mb-3">Comentarios ({{ comentarios|length }})</h2>
+        {% for c in comentarios %}
+          <div class="border-bottom pb-2 mb-3">
+            <div class="small text-muted"><strong>{{ c.autor }}</strong> · {{ c.fecha|date:"d/m/Y H:i" }}</div>
+            <div style="white-space: pre-line">{{ c.texto }}</div>
+          </div>
+        {% empty %}
+          <p class="text-muted">Todavía no hay comentarios.</p>
+        {% endfor %}
+        {% if user.is_authenticated and propuesta.estado != 'BORRADOR' %}
+          <form method="post" action="{% url 'participacion:comentar' propuesta.pk %}">
+            {% csrf_token %}
+            {{ comentario_form.texto }}
+            <button class="btn btn-primary btn-sm mt-2" type="submit">Comentar</button>
+          </form>
+        {% elif not user.is_authenticated %}
+          <p class="mb-0"><a href="{% url 'login' %}?next={{ request.path }}">Inicia sesión</a> para comentar.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body text-center">
+        <div class="display-6 fw-bold">{{ propuesta.total_votos }}</div>
+        <div class="text-muted small mb-3">puntaje · {{ votos_a_favor }} a favor · {{ votos_en_contra }} en contra</div>
+        {% if puede_votar %}
+          <form method="post" action="{% url 'participacion:votar' propuesta.pk %}" class="d-flex gap-2 justify-content-center">
+            {% csrf_token %}
+            <button name="valor" value="1" class="btn {% if mi_voto == 1 %}btn-success{% else %}btn-outline-success{% endif %}"><i class="bi bi-hand-thumbs-up"></i> A favor</button>
+            <button name="valor" value="-1" class="btn {% if mi_voto == -1 %}btn-danger{% else %}btn-outline-danger{% endif %}"><i class="bi bi-hand-thumbs-down"></i> En contra</button>
+          </form>
+          {% if mi_voto %}<div class="small text-muted mt-2">Puedes cambiar tu voto cuando quieras.</div>{% endif %}
+        {% elif not user.is_authenticated %}
+          <a href="{% url 'login' %}?next={{ request.path }}">Inicia sesión para votar</a>
+        {% elif user == propuesta.autor %}
+          <span class="small text-muted">No puedes votar tu propia propuesta.</span>
+        {% else %}
+          <span class="small text-muted">La votación está cerrada.</span>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if historial %}
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 fw-bold">Respuesta de la coordinación</h2>
+        {% for h in historial %}
+          <div class="small border-start border-3 ps-2 mb-3">
+            <div><strong>{{ h.get_estado_nuevo_display }}</strong> · {{ h.fecha|date:"d/m/Y" }}</div>
+            {% if h.observacion %}<div class="text-muted">{{ h.observacion }}</div>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

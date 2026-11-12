@@ -1,63 +1,40 @@
 # ProponeU
 
-**Plataforma web de propuestas académicas con inteligencia artificial**
-Proyecto Integrador ExpoUninpahu 2026 · Programa de Ingeniería de Software · Uninpahu
+Plataforma web para proponer actividades académicas (talleres, charlas, semilleros, hackatones...) en Uninpahu. La comunidad vota y comenta las propuestas y el coordinador las aprueba o las rechaza.
+
+Proyecto Integrador ExpoUninpahu 2026 - Ingeniería de Software
 Docente: Elfar Didier Morantes Sánchez
 
-## Equipo
+**Integrantes**
+- Juan Sebastián Gómez Tovar
+- Sergio Andrés Gutiérrez Marín
 
-| Integrante | Rol |
-| --- | --- |
-| Juan Sebastian Gomez Tovar | Desarrollador |
-| Sergio Andres Gutierrez Marin| Desarrollador |
+## Tecnologías
 
+- Django 6 (Python 3.13)
+- PostgreSQL (en local se usa SQLite)
+- Bootstrap 5
+- Docker
+- Render para el despliegue
+- Node.js + IA generativa (Gemini) para el microservicio (entrega 3)
 
-## Problema
-
-En Uninpahu, las ideas de estudiantes y docentes para actividades académicas complementarias
-(talleres, charlas, semilleros, hackatones) circulan por canales informales como WhatsApp, correos
-o papel. No hay un registro central, no se mide el interés de la comunidad y la coordinación
-clasifica y responde cada propuesta a mano.
-
-## Solución
-
-ProponeU centraliza el ciclo de una propuesta: **crear → votar y comentar → revisar → responder**.
-Un microservicio en Node.js integra IA generativa para resumir y clasificar propuestas, detectar
-duplicados y generar reportes ejecutivos para la coordinación.
-
-## Arquitectura
-
-![Diagrama de componentes](docs/uml/componentes.png)
-
-| Servicio | Tecnología | Responsabilidad |
-| --- | --- | --- |
-| `django_app` | Python 3.13 · Django 6 | Aplicación web, autenticación, roles, CRUD, votos, revisión, panel admin |
-| `ms_ia` | Node.js 20 · Express · Swagger | API REST para análisis con IA y notificaciones por correo |
-| `db` | PostgreSQL 16 | Persistencia (SQLite en desarrollo local) |
-| Externos | Google Gemini API · SMTP | IA generativa y correo |
-
-Despliegue: Render (dos Web Services con Docker + PostgreSQL gestionado). Ver [diagrama de despliegue](docs/uml/despliegue.png).
-
-## Estructura del repositorio
+## Estructura
 
 ```
-├── django_app/        Proyecto Django "proponeu"
-│   ├── proponeu/      Configuración (settings, urls)
-│   ├── usuarios/      Registro, login, perfiles y roles
-│   ├── propuestas/    CRUD de propuestas y categorías
-│   ├── participacion/ Votos y comentarios
-│   ├── revision/      Aprobación, estados y estadísticas
-│   ├── reportes/      Reportes ejecutivos con IA
-│   └── integraciones/ Cliente HTTP del microservicio ms_ia
-├── ms_ia/             Microservicio Node.js 
-├── docs/
-│   ├── SRS_ProponeU_Entrega1.docx / .pdf
-│   ├── backlog.md
-│   └── uml/           Casos de uso, componentes y despliegue
-└── .env.example       Variables de entorno necesarias
+django_app/      proyecto django
+  proponeu/      settings y urls
+  usuarios/      registro, login y roles
+  propuestas/    crud de propuestas y categorias
+  participacion/ votos y comentarios
+  revision/      aprobar / rechazar propuestas
+  reportes/      (entrega 3)
+  integraciones/ (entrega 3)
+ms_ia/           microservicio node (entrega 3)
+docs/            srs, backlog y diagramas uml
+render.yaml      configuracion de render
 ```
 
-## Ejecución local (estado actual)
+## Cómo correrlo
 
 ```bash
 python -m venv venv
@@ -65,15 +42,34 @@ venv\Scripts\activate
 pip install -r django_app/requirements.txt
 cd django_app
 python manage.py migrate
-python manage.py createsuperuser
+python manage.py cargar_demo
 python manage.py runserver
 ```
 
-En la Entrega 3 todo el sistema se levantará con `docker compose up`.
+`cargar_demo` crea usuarios de prueba (admin, coordinador, docente y estudiantes) y unas propuestas de ejemplo.
+
+Para correr las pruebas:
+
+```bash
+python manage.py test
+```
+
+Con Docker:
+
+```bash
+cd django_app
+docker build -t proponeu-web .
+docker run -p 8000:8000 -e DEBUG=False -e USAR_HTTPS=False -e DJANGO_SECRET_KEY=clave-local -e CARGAR_DEMO=True -e DEMO_PASSWORD=clave-demo proponeu-web
+```
+
+## Despliegue
+
+Se despliega en Render con el archivo `render.yaml` (servicio web con Docker + base de datos PostgreSQL).
+
+URL: _pendiente_
 
 ## Documentación
 
-- SRS — Entrega 1: [PDF](docs/SRS_ProponeU_Entrega1.pdf) · [Word](docs/SRS_ProponeU_Entrega1.docx)
-- [Backlog inicial](docs/backlog.md)
-- Matriz de trazabilidad: sección 12 del SRS
-- Diagramas UML: [casos de uso](docs/uml/casos_de_uso.png) · [componentes](docs/uml/componentes.png) · [despliegue](docs/uml/despliegue.png)
+- [SRS (PDF)](docs/SRS_ProponeU.pdf)
+- [Backlog](docs/backlog.md)
+- [Diagramas UML](docs/uml)

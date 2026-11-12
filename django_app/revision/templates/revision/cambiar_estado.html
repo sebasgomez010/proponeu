@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block titulo %}Revisar propuesta{% endblock %}
+{% block contenido %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <span class="badge text-bg-{{ propuesta.color_estado }} mb-2">{{ propuesta.get_estado_display }}</span>
+        <h1 class="h4"><a href="{{ propuesta.get_absolute_url }}">{{ propuesta.titulo }}</a></h1>
+        <p class="text-muted small">{{ propuesta.autor }} · {{ propuesta.categoria }} · puntaje {{ propuesta.puntaje }}</p>
+        <p style="white-space: pre-line">{{ propuesta.descripcion|truncatewords:80 }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <h2 class="h5 mb-3">Cambiar estado</h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% include 'includes/form.html' %}
+          <button class="btn btn-primary" type="submit">Guardar decisión</button>
+          <a class="btn btn-link" href="{% url 'revision:bandeja' %}">Volver</a>
+        </form>
+      </div>
+    </div>
+    {% if historial %}
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h2 class="h6 fw-bold">Historial</h2>
+          {% for h in historial %}
+            <div class="small mb-2">{{ h.fecha|date:"d/m/Y H:i" }} · {{ h.get_estado_anterior_display }} → <strong>{{ h.get_estado_nuevo_display }}</strong> · {{ h.usuario }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
