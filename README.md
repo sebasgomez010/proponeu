@@ -66,7 +66,7 @@ docker run -p 8000:8000 -e DEBUG=False -e USAR_HTTPS=False -e DJANGO_SECRET_KEY=
 
 Se despliega en Render con el archivo `render.yaml` (servicio web con Docker + base de datos PostgreSQL).
 
-URL: _pendiente_
+URL: aún pendiente
 
 ## Documentación
 
