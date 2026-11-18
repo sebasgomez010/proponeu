@@ -92,6 +92,7 @@ Se despliega en Render con el archivo `render.yaml`: Django, el microservicio y 
 
 - App: _pendiente_
 - Swagger: _pendiente_
+URL: aún pendiente
 
 ## Documentación
 
