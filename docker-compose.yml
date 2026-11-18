@@ -1,0 +1,53 @@
+# las claves se toman del archivo .env 
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: proponeu
+      POSTGRES_USER: proponeu
+      POSTGRES_PASSWORD: proponeu
+    volumes:
+      - datos_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U proponeu -d proponeu"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ms_ia:
+    build: ./ms_ia
+    environment:
+      PORT: 3000
+      MS_API_KEY: ${MS_API_KEY:-clave-local}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+    ports:
+      - "3000:3000"
+
+  web:
+    build: ./django_app
+    environment:
+      DEBUG: "False"
+      USAR_HTTPS: "False"
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-clave-local-docker}
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DATABASE_URL: postgres://proponeu:proponeu@db:5432/proponeu
+      MS_IA_URL: http://ms_ia:3000/api/v1
+      MS_API_KEY: ${MS_API_KEY:-clave-local}
+      CARGAR_DEMO: "True"
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-demo-local}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      ms_ia:
+        condition: service_started
+
+volumes:
+  datos_db:

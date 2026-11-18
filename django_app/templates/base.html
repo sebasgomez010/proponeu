@@ -27,6 +27,7 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'propuestas:mis_propuestas' %}">Mis propuestas</a></li>
             {% if user.es_coordinador %}
               <li class="nav-item"><a class="nav-link" href="{% url 'revision:bandeja' %}">Revisión</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'reportes:reporte' %}">Reportes</a></li>
             {% endif %}
             {% if user.is_staff %}
               <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Administración</a></li>

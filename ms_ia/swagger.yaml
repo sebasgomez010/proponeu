@@ -1,0 +1,299 @@
+openapi: 3.0.3
+info:
+  title: ProponeU - Microservicio ms_ia
+  version: 1.0.0
+  description: |
+    Microservicio en Node.js + Express de ProponeU.
+    Lo usa la aplicacion Django para analizar propuestas con IA generativa (Google Gemini),
+    buscar propuestas parecidas, generar reportes para el coordinador y enviar correos.
+
+    Los endpoints de `/api/v1` (menos `/health`) piden el header **x-api-key**.
+    Para probar aqui use el boton **Authorize**.
+servers:
+  - url: /
+    description: Servidor actual
+
+tags:
+  - name: Estado
+  - name: Propuestas
+  - name: Reportes
+  - name: Notificaciones
+
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: titulo y descripcion son obligatorios
+    AnalisisEntrada:
+      type: object
+      required: [titulo, descripcion]
+      properties:
+        titulo:
+          type: string
+          example: Taller de Git y GitHub para principiantes
+        descripcion:
+          type: string
+          example: Sesion practica de dos horas para aprender a usar Git, ramas, pull requests y GitHub en proyectos de clase.
+        categorias:
+          type: array
+          items:
+            type: string
+          example: [Taller, Charla, Hackatón]
+    AnalisisRespuesta:
+      type: object
+      properties:
+        resumen:
+          type: string
+          example: Taller practico para aprender control de versiones con Git y GitHub.
+        categoria_sugerida:
+          type: string
+          example: Taller
+        etiquetas:
+          type: array
+          items:
+            type: string
+          example: [git, github, control de versiones]
+        sugerencias:
+          type: array
+          items:
+            type: string
+          example: [Indica cuantos cupos habra.]
+        modo:
+          type: string
+          enum: [gemini, demo]
+    SimilaresEntrada:
+      type: object
+      required: [titulo, descripcion]
+      properties:
+        titulo:
+          type: string
+          example: Curso de Git
+        descripcion:
+          type: string
+          example: Aprender a usar Git y GitHub.
+        propuestas:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              titulo:
+                type: string
+                example: Taller de Git y GitHub para principiantes
+              descripcion:
+                type: string
+    SimilaresRespuesta:
+      type: object
+      properties:
+        similares:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              motivo:
+                type: string
+                example: Ambas tratan sobre aprender Git.
+        modo:
+          type: string
+          enum: [gemini, demo]
+    ReporteEntrada:
+      type: object
+      required: [desde, hasta]
+      properties:
+        desde:
+          type: string
+          format: date
+          example: '2026-11-01'
+        hasta:
+          type: string
+          format: date
+          example: '2026-11-30'
+        propuestas:
+          type: array
+          items:
+            type: object
+            properties:
+              titulo:
+                type: string
+                example: Taller de Git
+              categoria:
+                type: string
+                example: Taller
+              estado:
+                type: string
+                example: Publicada
+              votos:
+                type: integer
+                example: 5
+              comentarios:
+                type: integer
+                example: 2
+    ReporteRespuesta:
+      type: object
+      properties:
+        reporte:
+          type: string
+        modo:
+          type: string
+          enum: [gemini, demo]
+    NotificacionEntrada:
+      type: object
+      required: [para, asunto, mensaje]
+      properties:
+        para:
+          type: string
+          format: email
+          example: estudiante@proponeu.co
+        asunto:
+          type: string
+          example: Tu propuesta fue aprobada
+        mensaje:
+          type: string
+          example: La coordinacion aprobo tu propuesta "Taller de Git".
+    NotificacionRespuesta:
+      type: object
+      properties:
+        enviado:
+          type: boolean
+        modo:
+          type: string
+          enum: [smtp, consola]
+
+paths:
+  /api/v1/health:
+    get:
+      tags: [Estado]
+      summary: Revisa que el servicio este funcionando
+      responses:
+        '200':
+          description: El servicio esta arriba
+          content:
+            application/json:
+              example:
+                estado: ok
+                ia: gemini
+
+  /api/v1/propuestas/analizar:
+    post:
+      tags: [Propuestas]
+      summary: Analiza una propuesta con IA
+      description: Devuelve un resumen, la categoria sugerida, etiquetas y sugerencias de redaccion.
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalisisEntrada'
+      responses:
+        '200':
+          description: Analisis de la propuesta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalisisRespuesta'
+        '400':
+          description: Faltan datos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: API key invalida
+        '502':
+          description: Error al consultar la IA
+
+  /api/v1/propuestas/similares:
+    post:
+      tags: [Propuestas]
+      summary: Busca propuestas parecidas
+      description: Compara una propuesta nueva con las existentes y devuelve hasta 3 parecidas.
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimilaresEntrada'
+      responses:
+        '200':
+          description: Lista de propuestas parecidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimilaresRespuesta'
+        '400':
+          description: Faltan datos
+        '401':
+          description: API key invalida
+        '502':
+          description: Error al consultar la IA
+
+  /api/v1/reportes:
+    post:
+      tags: [Reportes]
+      summary: Genera un reporte ejecutivo con IA
+      description: Recibe las propuestas de un periodo y devuelve un reporte para el coordinador.
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReporteEntrada'
+      responses:
+        '200':
+          description: Reporte generado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReporteRespuesta'
+        '400':
+          description: Faltan datos
+        '401':
+          description: API key invalida
+        '502':
+          description: Error al consultar la IA
+
+  /api/v1/notificaciones:
+    post:
+      tags: [Notificaciones]
+      summary: Envia un correo
+      description: Se usa cuando el coordinador cambia el estado de una propuesta. Si no hay SMTP configurado el correo se muestra en la consola.
+      security:
+        - ApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificacionEntrada'
+      responses:
+        '200':
+          description: Correo enviado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificacionRespuesta'
+        '400':
+          description: Faltan datos
+        '401':
+          description: API key invalida
+        '502':
+          description: Error al enviar el correo

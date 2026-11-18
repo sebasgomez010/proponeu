@@ -128,7 +128,8 @@ MAILERS = {
 }
 
 
-# microservicio de node (entrega 3)
+# microservicio de node (ms_ia)
 
 MS_IA_URL = os.environ.get('MS_IA_URL', 'http://localhost:3000/api/v1')
 MS_API_KEY = os.environ.get('MS_API_KEY', '')
+MS_IA_TIMEOUT = int(os.environ.get('MS_IA_TIMEOUT', '30'))

@@ -42,6 +42,10 @@ class Propuesta(models.Model):
     creada = models.DateTimeField(auto_now_add=True)
     actualizada = models.DateTimeField(auto_now=True)
 
+    # lo llena el microservicio de ia
+    resumen_ia = models.TextField('resumen IA', blank=True)
+    etiquetas_ia = models.CharField('etiquetas IA', max_length=200, blank=True)
+
     # solo se puede editar o borrar en estos estados
     ESTADOS_EDITABLES = (Estado.BORRADOR, Estado.PUBLICADA)
 

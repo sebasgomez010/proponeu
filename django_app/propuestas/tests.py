@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -8,6 +10,10 @@ from .models import Categoria, Propuesta
 
 class PropuestaBaseTest(TestCase):
     def setUp(self):
+        # en las pruebas no se llama al microservicio de verdad
+        simulado = patch('integraciones.cliente._post', return_value=None)
+        self.post_ms = simulado.start()
+        self.addCleanup(simulado.stop)
         self.autor = Usuario.objects.create_user('autor@u.co', 'clave', first_name='Luis', last_name='Rojas')
         self.otro = Usuario.objects.create_user('otro@u.co', 'clave', first_name='Eva', last_name='Díaz')
         self.categoria = Categoria.objects.get(nombre='Taller')
@@ -101,3 +107,42 @@ class ConsultaTests(PropuestaBaseTest):
 
     def test_categorias_iniciales(self):
         self.assertEqual(Categoria.objects.count(), 6)
+
+
+class AnalisisIATests(PropuestaBaseTest):
+    def formulario(self, **extra):
+        datos = {'titulo': 'Taller de Docker', 'categoria': self.categoria.pk,
+                 'descripcion': 'Aprender contenedores con Docker', 'modalidad': 'PRESENCIAL'}
+        datos.update(extra)
+        return datos
+
+    @patch('integraciones.cliente.buscar_similares')
+    @patch('integraciones.cliente.analizar_propuesta')
+    def test_boton_analizar_muestra_resultado_sin_guardar(self, analizar, similares):
+        parecida = self.crear(titulo='Curso de contenedores')
+        analizar.return_value = {'resumen': 'Taller practico de Docker', 'categoria_sugerida': 'Taller',
+                                 'etiquetas': ['docker'], 'sugerencias': [], 'modo': 'gemini'}
+        similares.return_value = [{'id': parecida.id, 'motivo': 'Ambas son de contenedores'}]
+        self.client.force_login(self.autor)
+
+        respuesta = self.client.post(reverse('propuestas:crear'), self.formulario(analizar=''))
+
+        self.assertContains(respuesta, 'Taller practico de Docker')
+        self.assertContains(respuesta, 'Curso de contenedores')
+        self.assertEqual(Propuesta.objects.count(), 1)
+
+    @patch('integraciones.cliente.analizar_propuesta')
+    def test_al_publicar_se_guarda_el_resumen(self, analizar):
+        analizar.return_value = {'resumen': 'Resumen de la IA', 'etiquetas': ['docker', 'devops']}
+        self.client.force_login(self.autor)
+        self.client.post(reverse('propuestas:crear'), self.formulario(publicar=''))
+        propuesta = Propuesta.objects.get()
+        self.assertEqual(propuesta.resumen_ia, 'Resumen de la IA')
+        self.assertEqual(propuesta.etiquetas_ia, 'docker, devops')
+
+    def test_si_la_ia_falla_igual_se_publica(self):
+        self.client.force_login(self.autor)
+        self.client.post(reverse('propuestas:crear'), self.formulario(publicar=''))
+        propuesta = Propuesta.objects.get()
+        self.assertEqual(propuesta.estado, Propuesta.Estado.PUBLICADA)
+        self.assertEqual(propuesta.resumen_ia, '')

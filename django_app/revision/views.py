@@ -3,6 +3,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import FormView, ListView
 
+from integraciones import cliente
 from propuestas.models import Propuesta
 from propuestas.views import con_conteos
 from usuarios.mixins import CoordinadorRequeridoMixin
@@ -53,17 +54,28 @@ class CambiarEstadoView(CoordinadorRequeridoMixin, FormView):
         contexto['historial'] = self.propuesta.historial.select_related('usuario')
         return contexto
 
-    @transaction.atomic
     def form_valid(self, form):
         nuevo = form.cleaned_data['estado']
-        HistorialEstado.objects.create(
-            propuesta=self.propuesta,
-            estado_anterior=self.propuesta.estado,
-            estado_nuevo=nuevo,
-            observacion=form.cleaned_data['observacion'],
-            usuario=self.request.user,
-        )
-        self.propuesta.estado = nuevo
-        self.propuesta.save(update_fields=['estado', 'actualizada'])
+        observacion = form.cleaned_data['observacion']
+        with transaction.atomic():
+            HistorialEstado.objects.create(
+                propuesta=self.propuesta,
+                estado_anterior=self.propuesta.estado,
+                estado_nuevo=nuevo,
+                observacion=observacion,
+                usuario=self.request.user,
+            )
+            self.propuesta.estado = nuevo
+            self.propuesta.save(update_fields=['estado', 'actualizada'])
         messages.success(self.request, f'La propuesta quedó en estado «{self.propuesta.get_estado_display()}».')
+
+        # correo al autor por medio del microservicio
+        estado = self.propuesta.get_estado_display()
+        mensaje = f'Hola {self.propuesta.autor.first_name},\n\nTu propuesta "{self.propuesta.titulo}" ahora está en estado: {estado}.'
+        if observacion:
+            mensaje += f'\n\nObservación de la coordinación: {observacion}'
+        mensaje += '\n\nProponeU'
+        enviado = cliente.enviar_notificacion(self.propuesta.autor.email, f'Tu propuesta está {estado.lower()}', mensaje)
+        if not enviado:
+            messages.warning(self.request, 'No se pudo enviar el correo al autor.')
         return redirect('revision:bandeja')

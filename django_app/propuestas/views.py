@@ -6,11 +6,12 @@ from django.http import Http404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
+from integraciones import cliente
 from participacion.forms import ComentarioForm
 from participacion.models import Voto
 
 from .forms import FiltroPropuestasForm, PropuestaForm
-from .models import Propuesta
+from .models import Categoria, Propuesta
 
 
 def con_conteos(queryset):
@@ -95,7 +96,20 @@ class PropuestaDetailView(DetailView):
 
 class GuardarComoMixin:
     # el boton que se oprima define si queda publicada o en borrador
+    # el boton "Analizar con IA" no guarda, solo muestra el analisis
     def form_valid(self, form):
+        if 'analizar' in self.request.POST:
+            return self.mostrar_analisis(form)
+
+        # si cambio el texto se vuelve a pedir el resumen a la IA
+        if not form.instance.pk or 'titulo' in form.changed_data or 'descripcion' in form.changed_data:
+            analisis = self.analizar(form)
+            if analisis:
+                form.instance.resumen_ia = analisis.get('resumen', '')
+                form.instance.etiquetas_ia = ', '.join(analisis.get('etiquetas', []))
+            else:
+                messages.warning(self.request, 'No se pudo generar el resumen con IA, pero la propuesta se guardó.')
+
         if 'borrador' in self.request.POST:
             form.instance.estado = Propuesta.Estado.BORRADOR
         else:
@@ -106,6 +120,34 @@ class GuardarComoMixin:
         else:
             messages.info(self.request, 'La propuesta se guardó como borrador. Solo tú puedes verla.')
         return respuesta
+
+    def analizar(self, form):
+        categorias = list(Categoria.objects.values_list('nombre', flat=True))
+        return cliente.analizar_propuesta(form.cleaned_data['titulo'], form.cleaned_data['descripcion'], categorias)
+
+    def mostrar_analisis(self, form):
+        analisis = self.analizar(form)
+
+        # se comparan con las ultimas propuestas publicadas
+        otras = Propuesta.objects.exclude(estado=Propuesta.Estado.BORRADOR)
+        if form.instance.pk:
+            otras = otras.exclude(pk=form.instance.pk)
+        otras = list(otras.order_by('-creada')[:30])
+        resultado = cliente.buscar_similares(form.cleaned_data['titulo'], form.cleaned_data['descripcion'], otras)
+
+        similares = []
+        if resultado:
+            por_id = {p.id: p for p in otras}
+            for s in resultado:
+                if s.get('id') in por_id:
+                    similares.append({'propuesta': por_id[s['id']], 'motivo': s.get('motivo', '')})
+
+        return self.render_to_response(self.get_context_data(
+            form=form,
+            analisis=analisis,
+            similares=similares,
+            ia_fallo=analisis is None,
+        ))
 
 
 class PropuestaCreateView(LoginRequiredMixin, GuardarComoMixin, CreateView):

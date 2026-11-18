@@ -1,6 +1,6 @@
 # ProponeU
 
-Plataforma web para proponer actividades académicas (talleres, charlas, semilleros, hackatones...) en Uninpahu. La comunidad vota y comenta las propuestas y el coordinador las aprueba o las rechaza.
+Plataforma web para proponer actividades académicas (talleres, charlas, semilleros, hackatones...) en Uninpahu. La comunidad vota y comenta las propuestas y el coordinador las aprueba o las rechaza. Con IA se resumen las propuestas, se buscan propuestas parecidas y se generan reportes.
 
 Proyecto Integrador ExpoUninpahu 2026 - Ingeniería de Software
 Docente: Elfar Didier Morantes Sánchez
@@ -12,29 +12,55 @@ Docente: Elfar Didier Morantes Sánchez
 ## Tecnologías
 
 - Django 6 (Python 3.13)
+- Node.js 20 + Express (microservicio `ms_ia`)
+- Google Gemini (IA generativa)
+- Swagger / OpenAPI
 - PostgreSQL (en local se usa SQLite)
 - Bootstrap 5
-- Docker
+- Docker y Docker Compose
 - Render para el despliegue
-- Node.js + IA generativa (Gemini) para el microservicio (entrega 3)
 
 ## Estructura
 
 ```
-django_app/      proyecto django
-  proponeu/      settings y urls
-  usuarios/      registro, login y roles
-  propuestas/    crud de propuestas y categorias
-  participacion/ votos y comentarios
-  revision/      aprobar / rechazar propuestas
-  reportes/      (entrega 3)
-  integraciones/ (entrega 3)
-ms_ia/           microservicio node (entrega 3)
-docs/            srs, backlog y diagramas uml
-render.yaml      configuracion de render
+django_app/        proyecto django
+  proponeu/        settings y urls
+  usuarios/        registro, login y roles
+  propuestas/      crud de propuestas y categorias
+  participacion/   votos y comentarios
+  revision/        aprobar / rechazar propuestas
+  reportes/        reporte con ia para el coordinador
+  integraciones/   cliente que llama al microservicio
+ms_ia/             microservicio node (ia, correos y swagger)
+docs/              srs, backlog y diagramas uml
+docker-compose.yml levanta todo junto
+render.yaml        configuracion de render
 ```
 
 ## Cómo correrlo
+
+### Todo junto con Docker Compose
+
+```bash
+docker compose up --build
+```
+
+- Django: http://localhost:8000
+- Swagger del microservicio: http://localhost:3000/api/docs
+
+Las claves se ponen en un archivo `.env` en la raíz (copiar `.env.example`). Sin `GEMINI_API_KEY` la IA funciona en modo demo.
+
+### Sin Docker
+
+Microservicio:
+
+```bash
+cd ms_ia
+npm install
+npm run dev
+```
+
+Django (en otra terminal):
 
 ```bash
 python -m venv venv
@@ -48,28 +74,28 @@ python manage.py runserver
 
 `cargar_demo` crea usuarios de prueba (admin, coordinador, docente y estudiantes) y unas propuestas de ejemplo.
 
-Para correr las pruebas:
-
-```bash
-python manage.py test
-```
-
-Con Docker:
+### Pruebas
 
 ```bash
 cd django_app
-docker build -t proponeu-web .
-docker run -p 8000:8000 -e DEBUG=False -e USAR_HTTPS=False -e DJANGO_SECRET_KEY=clave-local -e CARGAR_DEMO=True -e DEMO_PASSWORD=clave-demo proponeu-web
+python manage.py test
+```
+
+```bash
+cd ms_ia
+npm test
 ```
 
 ## Despliegue
 
-Se despliega en Render con el archivo `render.yaml` (servicio web con Docker + base de datos PostgreSQL).
+Se despliega en Render con el archivo `render.yaml`: Django, el microservicio y la base de datos PostgreSQL.
 
-URL: _pendiente_
+- App: _pendiente_
+- Swagger: _pendiente_
 
 ## Documentación
 
 - [SRS (PDF)](docs/SRS_ProponeU.pdf)
 - [Backlog](docs/backlog.md)
 - [Diagramas UML](docs/uml)
+- [Microservicio ms_ia](ms_ia/README.md)

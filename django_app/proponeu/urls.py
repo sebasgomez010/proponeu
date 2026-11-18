@@ -17,5 +17,6 @@ urlpatterns = [
     path('propuestas/', include('propuestas.urls')),
     path('propuestas/', include('participacion.urls')),
     path('revision/', include('revision.urls')),
+    path('reportes/', include('reportes.urls')),
     path('admin/', admin.site.urls),
 ]

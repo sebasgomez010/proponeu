@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block titulo %}{% if object %}Editar propuesta{% else %}Nueva propuesta{% endif %}{% endblock %}
 {% block contenido %}
-<div class="row justify-content-center">
+<div class="row justify-content-center g-4">
   <div class="col-lg-8">
     <div class="card border-0 shadow-sm">
       <div class="card-body p-4">
@@ -9,7 +9,8 @@
         <form method="post" novalidate>
           {% csrf_token %}
           {% include 'includes/form.html' %}
-          <div class="d-flex gap-2">
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-primary" type="submit" name="analizar"><i class="bi bi-stars"></i> Analizar con IA</button>
             <button class="btn btn-primary" type="submit" name="publicar"><i class="bi bi-send"></i> Publicar</button>
             <button class="btn btn-outline-secondary" type="submit" name="borrador">Guardar como borrador</button>
             <a class="btn btn-link ms-auto" href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'propuestas:lista' %}{% endif %}">Cancelar</a>
@@ -18,5 +19,44 @@
       </div>
     </div>
   </div>
+
+  {% if analisis or ia_fallo %}
+  <div class="col-lg-4">
+    {% if ia_fallo %}
+      <div class="alert alert-warning">El servicio de IA no está disponible en este momento. Puedes publicar la propuesta igual.</div>
+    {% else %}
+      <div class="card border-primary shadow-sm mb-3">
+        <div class="card-body">
+          <h2 class="h6 fw-bold"><i class="bi bi-stars text-primary"></i> Análisis con IA</h2>
+          <p class="small mb-2"><strong>Resumen:</strong> {{ analisis.resumen }}</p>
+          {% if analisis.categoria_sugerida %}
+            <p class="small mb-2"><strong>Categoría sugerida:</strong> {{ analisis.categoria_sugerida }}</p>
+          {% endif %}
+          {% if analisis.etiquetas %}
+            <p class="small mb-2">{% for e in analisis.etiquetas %}<span class="badge text-bg-light border me-1">{{ e }}</span>{% endfor %}</p>
+          {% endif %}
+          {% if analisis.sugerencias %}
+            <p class="small fw-semibold mb-1">Sugerencias:</p>
+            <ul class="small mb-0">{% for s in analisis.sugerencias %}<li>{{ s }}</li>{% endfor %}</ul>
+          {% endif %}
+          {% if analisis.modo == 'demo' %}<p class="small text-muted mt-2 mb-0">(modo demo, sin IA real)</p>{% endif %}
+        </div>
+      </div>
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h2 class="h6 fw-bold">Propuestas parecidas</h2>
+          {% for s in similares %}
+            <div class="small mb-2">
+              <a href="{{ s.propuesta.get_absolute_url }}" target="_blank">{{ s.propuesta.titulo }}</a>
+              <div class="text-muted">{{ s.motivo }}</div>
+            </div>
+          {% empty %}
+            <p class="small text-muted mb-0">No encontramos propuestas parecidas.</p>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
